@@ -16,9 +16,17 @@ Browser audio notifications for Moltbot/Clawdbot webchat. Get notified when new 
 
 ## 🎯 Quick Start
 
+### Three Easy Setup Options
+
+**Want easy configuration?** → [Easy Setup Guide](docs/EASY_SETUP.md)
+
+1. **Drop-in Settings Panel** - Ready-made UI (recommended)
+2. **JSON Configuration** - Config file approach
+3. **Programmatic** - Full control via code
+
 ### 1. Test the POC
 
-Open `examples/test.html` in your browser to try it out:
+Open `examples/test.html` or `examples/easy-setup.html` in your browser:
 
 ```bash
 cd webchat-audio-notifications/examples
@@ -34,18 +42,43 @@ python3 -m http.server 8080
 
 ### 2. Basic Integration
 
+**Simplest (with settings UI):**
 ```html
-<!-- Load Howler.js -->
-<script src="path/to/howler.min.js"></script>
-
-<!-- Load WebchatNotifications -->
-<script src="path/to/notification.js"></script>
+<!-- Load libraries -->
+<script src="./howler.min.js"></script>
+<script src="./notification.js"></script>
 
 <script>
-  // Initialize
+  let notifier = null;
+  window.addEventListener('DOMContentLoaded', async () => {
+    notifier = new WebchatNotifications({
+      soundPath: './sounds',
+      soundName: 'level3'
+    });
+    await notifier.init();
+  });
+</script>
+
+<!-- Add settings panel (users can configure themselves) -->
+<div id="notification-settings"></div>
+<script>
+  fetch('./settings-panel.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('notification-settings').innerHTML = html;
+    });
+</script>
+```
+
+**Programmatic (full control):**
+```html
+<script src="./howler.min.js"></script>
+<script src="./notification.js"></script>
+
+<script>
   const notifier = new WebchatNotifications({
     soundPath: './sounds',
-    soundName: 'level3',  // Default: medium intensity
+    soundName: 'level3',
     defaultVolume: 0.7
   });
   
@@ -57,6 +90,8 @@ python3 -m http.server 8080
   });
 </script>
 ```
+
+👉 **[Full Easy Setup Guide](docs/EASY_SETUP.md)** - Settings panel, JSON config, and more!
 
 ## 📚 API Documentation
 
@@ -270,6 +305,9 @@ webchat-audio-notifications/
 ├── client/
 │   ├── notification.js       # Main notification class (10KB)
 │   ├── howler.min.js         # Howler.js library (36KB)
+│   ├── settings-panel.html   # Drop-in settings UI (8KB)
+│   ├── config-loader.js      # JSON config helper (2KB)
+│   ├── config.example.json   # Example configuration
 │   └── sounds/
 │       ├── level1.mp3        # Level 1 - Whisper (9.5KB)
 │       ├── level2.mp3        # Level 2 - Soft (12KB)
@@ -280,9 +318,11 @@ webchat-audio-notifications/
 │       ├── alert.mp3         # Legacy (same as level5)
 │       └── SOUNDS.md         # Sound attribution & guide
 ├── examples/
-│   └── test.html            # Standalone test page
+│   ├── test.html            # Full test page with all features
+│   └── easy-setup.html      # Simple demo with settings panel
 ├── docs/
-│   └── integration.md       # Integration guide
+│   ├── EASY_SETUP.md        # Easy setup guide (settings panel, JSON, etc.)
+│   └── integration.md       # Advanced integration guide
 ├── README.md                # This file
 └── SKILL.md                 # ClawdHub metadata
 ```
