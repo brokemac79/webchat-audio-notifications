@@ -15,8 +15,8 @@
 class WebchatNotifications {
   constructor(options = {}) {
     this.options = {
-      soundPath: options.soundPath || './sounds/notification',
-      soundName: options.soundName || 'notification', // 'notification' or 'alert'
+      soundPath: options.soundPath || './sounds',
+      soundName: options.soundName || 'level3', // level1 (subtle) through level5 (loudest)
       defaultVolume: options.defaultVolume || 0.7,
       cooldownMs: options.cooldownMs || 3000, // Don't ping more than once per 3s
       enableButton: options.enableButton !== false, // Show by default
@@ -69,7 +69,7 @@ class WebchatNotifications {
    * Initialize Howler sound instance
    */
   _initSound() {
-    const soundFile = `${this.options.soundPath.replace(/\/(notification|alert)$/, '')}/${this.options.soundName}`;
+    const soundFile = `${this.options.soundPath}/${this.options.soundName}`;
     
     this.sound = new Howl({
       src: [

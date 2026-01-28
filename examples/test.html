@@ -287,12 +287,12 @@
       <div class="instructions">
         <h3>How to Test:</h3>
         <ol>
-          <li><strong>Test sounds:</strong> Click "Test Sound" to hear the current sound</li>
-          <li><strong>Try different sounds:</strong> Use the "Sound Effect" dropdown to switch between notification and alert</li>
+          <li><strong>Test sounds:</strong> Click "Test Sound" to hear the current intensity level</li>
+          <li><strong>Try different levels:</strong> Use the "Sound Intensity" dropdown (Level 1 = whisper, Level 5 = impossible to miss)</li>
+          <li><strong>Find your preference:</strong> Test each level to find what works best for you</li>
           <li><strong>Switch tabs:</strong> Open another tab/window</li>
           <li><strong>Trigger notification:</strong> Click "Trigger Notification" button</li>
           <li><strong>Expected:</strong> You should hear a sound (since this tab is hidden)</li>
-          <li><strong>Test variations:</strong> Try disabling, changing volume, etc.</li>
         </ol>
       </div>
 
@@ -322,7 +322,7 @@
 
       <div class="slider-group">
         <label for="sound-selector">
-          Sound Effect:
+          Sound Intensity:
         </label>
         <select id="sound-selector" onchange="changeSound(this.value)" style="
           width: 100%;
@@ -331,8 +331,11 @@
           border: 1px solid #ddd;
           font-size: 14px;
         ">
-          <option value="notification">🔔 Notification (Subtle chime)</option>
-          <option value="alert">🚨 Alert (Louder, more prominent)</option>
+          <option value="level1">🔕 Level 1 - Whisper (Most subtle, 9KB)</option>
+          <option value="level2">🔔 Level 2 - Soft (Gentle chime, 12KB)</option>
+          <option value="level3" selected>🔔 Level 3 - Medium (Balanced, 13KB)</option>
+          <option value="level4">🔊 Level 4 - Loud (Attention-getting, 43KB)</option>
+          <option value="level5">📢 Level 5 - Very Loud (Impossible to miss, 63KB)</option>
         </select>
       </div>
 
@@ -365,7 +368,8 @@
       
       // Create notifier with debug enabled
       notifier = new WebchatNotifications({
-        soundPath: './sounds/notification',
+        soundPath: './sounds',
+        soundName: 'level3',
         debug: true,
         defaultVolume: 0.7
       });
@@ -404,11 +408,19 @@
       document.getElementById('status-volume').textContent = 
         Math.round(settings.volume * 100) + '%';
       
+      // Display sound level
+      const soundLabels = {
+        'level1': '🔕 Level 1',
+        'level2': '🔔 Level 2',
+        'level3': '🔔 Level 3',
+        'level4': '🔊 Level 4',
+        'level5': '📢 Level 5'
+      };
       document.getElementById('status-sound').textContent = 
-        settings.soundName === 'alert' ? '🚨 Alert' : '🔔 Notification';
+        soundLabels[settings.soundName] || settings.soundName;
       
       // Update sound selector dropdown
-      document.getElementById('sound-selector').value = settings.soundName || 'notification';
+      document.getElementById('sound-selector').value = settings.soundName || 'level3';
       
       // Autoplay policy
       if (Howler.ctx) {

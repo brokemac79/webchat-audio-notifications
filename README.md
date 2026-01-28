@@ -7,7 +7,7 @@ Browser audio notifications for Moltbot/Clawdbot webchat. Get notified when new 
 - 🔔 **Smart notifications** - Only plays sound when tab is hidden
 - 🎚️ **Volume control** - Adjustable notification volume (0-100%)
 - 🔕 **Easy toggle** - Enable/disable with one click
-- 🎵 **Multiple sounds** - Choose between subtle notification or louder alert sound
+- 🎵 **5 intensity levels** - From whisper (level 1) to impossible-to-miss (level 5)
 - 💾 **Persistent preferences** - Settings saved in localStorage
 - 📱 **Mobile-friendly** - Graceful handling of mobile restrictions
 - 🚫 **Autoplay handling** - Respects browser autoplay policies
@@ -44,7 +44,8 @@ python3 -m http.server 8080
 <script>
   // Initialize
   const notifier = new WebchatNotifications({
-    soundPath: './sounds/notification',
+    soundPath: './sounds',
+    soundName: 'level3',  // Default: medium intensity
     defaultVolume: 0.7
   });
   
@@ -68,14 +69,21 @@ const notifier = new WebchatNotifications(options);
 **Options:**
 ```javascript
 {
-  soundPath: './sounds/notification',  // Path to sound files directory
-  soundName: 'notification',           // Sound file name ('notification' or 'alert')
+  soundPath: './sounds',               // Path to sounds directory
+  soundName: 'level3',                 // Intensity: 'level1' through 'level5'
   defaultVolume: 0.7,                  // Volume level (0.0 to 1.0)
   cooldownMs: 3000,                    // Min time between notifications (ms)
   enableButton: true,                  // Show enable prompt if autoplay blocked
   debug: false                         // Enable console logging
 }
 ```
+
+**Sound Intensity Levels:**
+- `level1` - Whisper (9.5KB) - Most subtle
+- `level2` - Soft (12KB) - Gentle chime
+- `level3` - Medium (13KB) - **Default**, balanced
+- `level4` - Loud (43KB) - Attention-getting
+- `level5` - Very Loud (63KB) - Impossible to miss
 
 ### Methods
 
@@ -118,11 +126,14 @@ notifier.setVolume(1.0);  // 100% volume
 ```
 
 #### `setSound(soundName)`
-Change notification sound.
+Change notification intensity level.
 
 ```javascript
-notifier.setSound('notification');  // Subtle chime
-notifier.setSound('alert');         // Louder, more prominent
+notifier.setSound('level1');  // Whisper (most subtle)
+notifier.setSound('level2');  // Soft
+notifier.setSound('level3');  // Medium (default)
+notifier.setSound('level4');  // Loud
+notifier.setSound('level5');  // Very loud (impossible to miss)
 ```
 
 #### `getSettings()`
@@ -151,7 +162,10 @@ const settings = notifier.getSettings();
 ### Simple Setup
 
 ```javascript
-const notifier = new WebchatNotifications();
+const notifier = new WebchatNotifications({
+  soundPath: './sounds',
+  soundName: 'level3'  // Medium intensity (default)
+});
 await notifier.init();
 notifier.notify();  // That's it!
 ```
@@ -160,17 +174,21 @@ notifier.notify();  // That's it!
 
 ```javascript
 const notifier = new WebchatNotifications({
-  soundPath: '/assets/sounds/notification',
+  soundPath: '/assets/sounds',
+  soundName: 'level3',  // Start with medium
   defaultVolume: 0.8,
-  cooldownMs: 5000,  // 5 second cooldown
-  debug: true        // Enable logging
+  cooldownMs: 5000,     // 5 second cooldown
+  debug: true           // Enable logging
 });
 
 await notifier.init();
 
 // Hook into your message system
 chatClient.on('newMessage', () => notifier.notify());
-chatClient.on('mention', () => notifier.notify('mention'));  // Future: different sound
+chatClient.on('mention', () => {
+  notifier.setSound('level5');  // Use loudest for mentions
+  notifier.notify();
+});
 ```
 
 ### With User Controls
@@ -180,10 +198,13 @@ chatClient.on('mention', () => notifier.notify('mention'));  // Future: differen
 <input type="range" min="0" max="100" value="70" 
        onchange="notifier.setVolume(this.value / 100)">
 
-<!-- Sound selector -->
+<!-- Sound intensity selector -->
 <select onchange="notifier.setSound(this.value)">
-  <option value="notification">🔔 Notification</option>
-  <option value="alert">🚨 Alert</option>
+  <option value="level1">🔕 Level 1 - Whisper</option>
+  <option value="level2">🔔 Level 2 - Soft</option>
+  <option value="level3" selected>🔔 Level 3 - Medium</option>
+  <option value="level4">🔊 Level 4 - Loud</option>
+  <option value="level5">📢 Level 5 - Very Loud</option>
 </select>
 
 <!-- Enable/disable toggle -->
@@ -247,12 +268,17 @@ if (settings.isMobile) {
 ```
 webchat-audio-notifications/
 ├── client/
-│   ├── notification.js       # Main notification class
+│   ├── notification.js       # Main notification class (10KB)
 │   ├── howler.min.js         # Howler.js library (36KB)
 │   └── sounds/
-│       ├── notification.mp3  # Default notification sound
-│       ├── alert.mp3         # Alternative sound
-│       └── SOUNDS.md         # Sound attribution
+│       ├── level1.mp3        # Level 1 - Whisper (9.5KB)
+│       ├── level2.mp3        # Level 2 - Soft (12KB)
+│       ├── level3.mp3        # Level 3 - Medium (13KB, default)
+│       ├── level4.mp3        # Level 4 - Loud (43KB)
+│       ├── level5.mp3        # Level 5 - Very Loud (63KB)
+│       ├── notification.mp3  # Legacy (same as level3)
+│       ├── alert.mp3         # Legacy (same as level5)
+│       └── SOUNDS.md         # Sound attribution & guide
 ├── examples/
 │   └── test.html            # Standalone test page
 ├── docs/
@@ -288,15 +314,37 @@ Found a bug? Have a feature request?
 
 ## 🚀 Next Steps
 
+- [x] **Multiple intensity levels** (5 levels implemented)
 - [ ] WebM sound format support (smaller files)
-- [ ] Per-event sound customization (different sounds for mentions, DMs, etc.)
 - [ ] Visual notification fallback (flashing favicon)
 - [ ] System notifications API integration
 - [ ] Settings UI component
 - [ ] Do Not Disturb mode (time-based)
+- [ ] Custom sound upload support
+
+## 💡 Usage Tips
+
+**Choosing Your Level:**
+- **Open office?** Use level 1-2 (subtle, won't disturb neighbors)
+- **Home office?** Use level 3 (balanced default)
+- **Noisy environment?** Use level 4-5 (cuts through background noise)
+- **Critical alerts only?** Use level 5 for important notifications
+
+**Dynamic Switching:**
+```javascript
+// Soft for regular messages
+notifier.setSound('level2');
+
+// Loud for mentions
+socket.on('mention', () => {
+  notifier.setSound('level5');
+  notifier.notify();
+  setTimeout(() => notifier.setSound('level2'), 1000);
+});
+```
 
 ---
 
-**Status:** ✅ POC v1.0.0 - Ready for testing  
+**Status:** ✅ POC v1.1.0 - 5 intensity levels  
 **Last updated:** 2026-01-28  
 **Maintained by:** @brokemac79
