@@ -73,6 +73,7 @@ Browser audio notifications for Moltbot/Clawdbot webchat. Plays a notification s
 - 🔔 **Smart notifications** - Only plays when tab is hidden
 - 🎚️ **Volume control** - Adjustable 0-100%
 - 🎵 **5 intensity levels** - Whisper (1) to impossible-to-miss (5)
+- 📁 **Custom sounds** - Upload your own (MP3, WAV, OGG, WebM)
 - 🔕 **Easy toggle** - Enable/disable with one click
 - 💾 **Persistent settings** - Preferences saved in localStorage
 - 📱 **Mobile-friendly** - Graceful degradation on mobile

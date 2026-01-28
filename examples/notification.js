@@ -69,12 +69,26 @@ class WebchatNotifications {
    * Initialize Howler sound instance
    */
   _initSound() {
-    const soundFile = `${this.options.soundPath}/${this.options.soundName}`;
+    let soundSrc;
+    
+    // Check if using custom uploaded sound
+    if (this.options.soundName === 'custom') {
+      const customSound = this.getCustomSound();
+      if (customSound) {
+        soundSrc = [customSound.dataUrl];
+      } else {
+        // Custom sound not found, fallback to default
+        this._log('Custom sound not found, using level3');
+        this.options.soundName = 'level3';
+        soundSrc = [`${this.options.soundPath}/level3.mp3`];
+      }
+    } else {
+      // Use built-in sound
+      soundSrc = [`${this.options.soundPath}/${this.options.soundName}.mp3`];
+    }
     
     this.sound = new Howl({
-      src: [
-        `${soundFile}.mp3`
-      ],
+      src: soundSrc,
       volume: this.volume,
       html5: true, // Use HTML5 Audio for better mobile support
       onloaderror: (id, err) => {
@@ -162,7 +176,7 @@ class WebchatNotifications {
 
   /**
    * Change notification sound
-   * @param {string} soundName - Sound name ('notification' or 'alert')
+   * @param {string} soundName - Sound name ('level1-5' or 'custom')
    */
   setSound(soundName) {
     if (!this.initialized) {
@@ -182,6 +196,75 @@ class WebchatNotifications {
     // Reinitialize with new sound
     this._initSound();
     this._log('Sound changed to', soundName);
+  }
+
+  /**
+   * Upload custom sound file
+   * @param {File} file - Audio file from file input
+   * @returns {Promise<boolean>} Success status
+   */
+  async uploadCustomSound(file) {
+    if (!file) {
+      console.error('WebchatNotifications: No file provided');
+      return false;
+    }
+
+    // Check file type
+    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm'];
+    if (!validTypes.includes(file.type)) {
+      console.error('WebchatNotifications: Invalid file type. Supported: MP3, WAV, OGG, WebM');
+      return false;
+    }
+
+    // Check file size (max 500KB)
+    if (file.size > 500000) {
+      console.error('WebchatNotifications: File too large (max 500KB)');
+      return false;
+    }
+
+    try {
+      // Convert to base64 data URL
+      const dataUrl = await this._fileToDataUrl(file);
+      
+      // Store in localStorage
+      this._setPreference('customSoundData', dataUrl);
+      this._setPreference('customSoundName', file.name);
+      
+      this._log('Custom sound uploaded:', file.name);
+      return true;
+    } catch (err) {
+      console.error('WebchatNotifications: Upload failed', err);
+      return false;
+    }
+  }
+
+  /**
+   * Remove custom sound
+   */
+  removeCustomSound() {
+    localStorage.removeItem('webchat_notifications_customSoundData');
+    localStorage.removeItem('webchat_notifications_customSoundName');
+    
+    // If currently using custom sound, switch to default
+    if (this.options.soundName === 'custom') {
+      this.setSound('level3');
+    }
+    
+    this._log('Custom sound removed');
+  }
+
+  /**
+   * Get custom sound info
+   * @returns {Object|null} Custom sound info or null
+   */
+  getCustomSound() {
+    const data = this._getPreference('customSoundData', null);
+    const name = this._getPreference('customSoundName', null);
+    
+    if (data && name) {
+      return { name, dataUrl: data };
+    }
+    return null;
   }
 
   /**
@@ -378,6 +461,19 @@ class WebchatNotifications {
     } catch (err) {
       console.error('WebchatNotifications: Error saving preference', key, err);
     }
+  }
+
+  /**
+   * Convert File to data URL
+   * @private
+   */
+  _fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   /**

@@ -237,7 +237,33 @@
       <option value="level3" selected>🔔 Level 3 - Medium (recommended)</option>
       <option value="level4">🔊 Level 4 - Loud</option>
       <option value="level5">📢 Level 5 - Very Loud (impossible to miss)</option>
+      <option value="custom" id="notif-custom-option" style="display: none;">🎵 Custom Sound</option>
     </select>
+  </div>
+
+  <!-- Custom Sound Upload -->
+  <div class="notif-setting-row">
+    <label class="notif-label">
+      Custom Sound
+      <span class="notif-label-muted">(Upload your own: MP3, WAV, OGG, WebM - max 500KB)</span>
+    </label>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <input type="file" 
+             id="notif-custom-file" 
+             accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm"
+             style="display: none;"
+             onchange="handleCustomSoundUpload(this)">
+      <button class="notif-btn" onclick="document.getElementById('notif-custom-file').click()" style="flex: 1;">
+        📁 Upload Sound
+      </button>
+      <button class="notif-btn" 
+              id="notif-remove-custom" 
+              onclick="removeCustomSound()"
+              style="background: #e74c3c; display: none;">
+        🗑️
+      </button>
+    </div>
+    <div id="notif-custom-status" style="margin-top: 6px; font-size: 12px; color: #7f8c8d;"></div>
   </div>
 
   <!-- Volume Control -->
@@ -277,6 +303,9 @@
       document.getElementById('notif-volume').value = Math.round(settings.volume * 100);
       document.getElementById('notif-volume-display').textContent = Math.round(settings.volume * 100) + '%';
       
+      // Check for custom sound
+      updateCustomSoundUI();
+      
       // Update status display
       updateStatusDisplay(settings.enabled);
       
@@ -299,6 +328,35 @@
       });
     }
 
+    function updateCustomSoundUI() {
+      const customSound = window.notifier.getCustomSound();
+      const customOption = document.getElementById('notif-custom-option');
+      const removeBtn = document.getElementById('notif-remove-custom');
+      const statusDiv = document.getElementById('notif-custom-status');
+      
+      if (customSound) {
+        // Show custom option in dropdown
+        customOption.style.display = 'block';
+        customOption.textContent = `🎵 Custom Sound (${customSound.name})`;
+        
+        // Show remove button
+        removeBtn.style.display = 'block';
+        
+        // Update status
+        statusDiv.textContent = `✓ Using: ${customSound.name}`;
+        statusDiv.style.color = '#27ae60';
+      } else {
+        // Hide custom option
+        customOption.style.display = 'none';
+        
+        // Hide remove button
+        removeBtn.style.display = 'none';
+        
+        // Clear status
+        statusDiv.textContent = '';
+      }
+    }
+
     function updateStatusDisplay(enabled) {
       const statusEl = document.getElementById('notif-status');
       if (enabled) {
@@ -318,6 +376,80 @@
   function testNotificationSound() {
     if (window.notifier && window.notifier.initialized) {
       window.notifier.test();
+    }
+  }
+
+  // Handle custom sound upload
+  async function handleCustomSoundUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const statusDiv = document.getElementById('notif-custom-status');
+    statusDiv.textContent = 'Uploading...';
+    statusDiv.style.color = '#3498db';
+    
+    const success = await window.notifier.uploadCustomSound(file);
+    
+    if (success) {
+      statusDiv.textContent = `✓ Uploaded: ${file.name}`;
+      statusDiv.style.color = '#27ae60';
+      
+      // Update UI
+      updateCustomSoundUI();
+      
+      // Auto-select custom sound
+      document.getElementById('notif-sound').value = 'custom';
+      window.notifier.setSound('custom');
+      
+      // Clear file input
+      input.value = '';
+    } else {
+      statusDiv.textContent = '✗ Upload failed (check file type/size)';
+      statusDiv.style.color = '#e74c3c';
+      input.value = '';
+    }
+  }
+
+  // Remove custom sound
+  function removeCustomSound() {
+    if (confirm('Remove your custom sound?')) {
+      window.notifier.removeCustomSound();
+      
+      // Update UI
+      updateCustomSoundUI();
+      
+      // Switch to default
+      document.getElementById('notif-sound').value = 'level3';
+      
+      const statusDiv = document.getElementById('notif-custom-status');
+      statusDiv.textContent = 'Custom sound removed';
+      statusDiv.style.color = '#7f8c8d';
+      
+      setTimeout(() => {
+        statusDiv.textContent = '';
+      }, 3000);
+    }
+  }
+
+  // Helper to update custom sound UI (accessible from init)
+  function updateCustomSoundUI() {
+    if (!window.notifier) return;
+    
+    const customSound = window.notifier.getCustomSound();
+    const customOption = document.getElementById('notif-custom-option');
+    const removeBtn = document.getElementById('notif-remove-custom');
+    const statusDiv = document.getElementById('notif-custom-status');
+    
+    if (customSound) {
+      customOption.style.display = 'block';
+      customOption.textContent = `🎵 Custom Sound (${customSound.name})`;
+      removeBtn.style.display = 'block';
+      statusDiv.textContent = `✓ Using: ${customSound.name}`;
+      statusDiv.style.color = '#27ae60';
+    } else {
+      customOption.style.display = 'none';
+      removeBtn.style.display = 'none';
+      statusDiv.textContent = '';
     }
   }
 </script>

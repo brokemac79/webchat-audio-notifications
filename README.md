@@ -8,6 +8,7 @@ Browser audio notifications for Moltbot/Clawdbot webchat. Get notified when new 
 - 🎚️ **Volume control** - Adjustable notification volume (0-100%)
 - 🔕 **Easy toggle** - Enable/disable with one click
 - 🎵 **5 intensity levels** - From whisper (level 1) to impossible-to-miss (level 5)
+- 📁 **Custom sounds** - Upload your own notification sounds (MP3, WAV, OGG, WebM)
 - 💾 **Persistent preferences** - Settings saved in localStorage
 - 📱 **Mobile-friendly** - Graceful handling of mobile restrictions
 - 🚫 **Autoplay handling** - Respects browser autoplay policies
@@ -169,6 +170,42 @@ notifier.setSound('level2');  // Soft
 notifier.setSound('level3');  // Medium (default)
 notifier.setSound('level4');  // Loud
 notifier.setSound('level5');  // Very loud (impossible to miss)
+notifier.setSound('custom');   // Use uploaded custom sound
+```
+
+#### `uploadCustomSound(file)`
+Upload a custom notification sound.
+
+```javascript
+const fileInput = document.getElementById('file-input');
+const file = fileInput.files[0];
+
+const success = await notifier.uploadCustomSound(file);
+if (success) {
+  notifier.setSound('custom');  // Switch to custom sound
+}
+```
+
+**Supported formats:** MP3, WAV, OGG, WebM  
+**Max file size:** 500KB  
+**Storage:** Browser localStorage (no server upload)
+
+#### `removeCustomSound()`
+Remove the uploaded custom sound.
+
+```javascript
+notifier.removeCustomSound();
+```
+
+#### `getCustomSound()`
+Get info about the uploaded custom sound.
+
+```javascript
+const custom = notifier.getCustomSound();
+if (custom) {
+  console.log('Custom sound:', custom.name);
+}
+// Returns: { name, dataUrl } or null
 ```
 
 #### `getSettings()`
@@ -248,7 +285,60 @@ chatClient.on('mention', () => {
 
 <!-- Test button -->
 <button onclick="notifier.test()">Test Sound 🔊</button>
+
+<!-- Custom sound upload -->
+<input type="file" id="custom-sound" accept="audio/*" onchange="uploadCustom(this)">
+<script>
+  async function uploadCustom(input) {
+    const file = input.files[0];
+    if (await notifier.uploadCustomSound(file)) {
+      notifier.setSound('custom');
+      alert('Custom sound uploaded!');
+    }
+  }
+</script>
 ```
+
+### Custom Sound Upload Example
+
+Users can upload their own notification sounds:
+
+```html
+<input type="file" id="sound-upload" accept="audio/mpeg,audio/wav,audio/ogg,audio/webm">
+
+<script>
+  document.getElementById('sound-upload').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Upload the sound
+    const success = await notifier.uploadCustomSound(file);
+    
+    if (success) {
+      // Automatically switch to custom sound
+      notifier.setSound('custom');
+      console.log('Custom sound uploaded:', file.name);
+      
+      // Test it
+      notifier.test();
+    } else {
+      console.error('Upload failed - check file type and size');
+    }
+  });
+  
+  // Check if custom sound exists
+  const customSound = notifier.getCustomSound();
+  if (customSound) {
+    console.log('Custom sound available:', customSound.name);
+  }
+</script>
+```
+
+**Limitations:**
+- Max file size: 500KB
+- Supported formats: MP3, WAV, OGG, WebM
+- Stored in browser localStorage (no server upload)
+- Clearing browser data removes custom sound
 
 ## 🚨 Troubleshooting
 
