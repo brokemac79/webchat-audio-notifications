@@ -109,10 +109,15 @@
       }
       
       // Load settings panel
-      fetch('../client/settings-panel.html')
+      fetch('./settings-panel.html')
         .then(r => r.text())
         .then(html => {
           document.getElementById('settings-container').innerHTML = html;
+        })
+        .catch(err => {
+          console.error('Failed to load settings panel:', err);
+          document.getElementById('settings-container').innerHTML = 
+            '<p style="color: red;">Failed to load settings panel. Check console for errors.</p>';
         });
     });
   </script>

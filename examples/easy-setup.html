@@ -169,7 +169,7 @@
       console.log('✅ Notifier ready');
       
       // Load settings panel
-      fetch('../client/settings-panel.html')
+      fetch('./settings-panel.html')
         .then(r => r.text())
         .then(html => {
           document.getElementById('settings-container').innerHTML = html;
