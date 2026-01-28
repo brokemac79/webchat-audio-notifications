@@ -2,6 +2,28 @@
 
 Browser audio notifications for Moltbot/Clawdbot webchat. Get notified when new messages arrive - but only when the tab is in the background.
 
+**🧪 [Try the live demo](examples/test.html)** - Download and open in your browser!
+
+**Status:** ✅ v1.2.0 - Production ready, looking for testers!
+
+---
+
+## 🚀 Quick Test (2 minutes)
+
+**Want to try it right now?**
+
+1. **Clone or download** this repo
+2. **Open** `examples/test.html` in your browser
+3. **Click** the green "🔊 Test Sound" button (unlocks audio)
+4. **Hear** the notification sound!
+5. **Try** different intensity levels (Level 1-5 dropdown)
+
+That's it! If you hear sounds, it works. 🎉
+
+**Note:** Browsers block audio autoplay by default (security). Just click "Test Sound" once to unlock, then it works forever.
+
+---
+
 ## ✨ Features
 
 - 🔔 **Smart notifications** - Only plays sound when tab is hidden
