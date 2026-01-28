@@ -20,7 +20,22 @@ Browser audio notifications for Moltbot/Clawdbot webchat. Get notified when new 
 
 That's it! If you hear sounds, it works. 🎉
 
-**Note:** Browsers block audio autoplay by default (security). Just click "Test Sound" once to unlock, then it works forever.
+### ⚠️ Important: Browser Autoplay Policy
+
+**Why you must click "Test Sound" first:**
+
+All modern browsers (Chrome, Firefox, Safari, Edge) **block audio autoplay by default** as a security feature. This prevents websites from playing sounds without your permission.
+
+**This is NORMAL and EXPECTED behavior, not a bug!**
+
+**What happens:**
+1. Page loads → Audio is blocked 🔇
+2. You click "Test Sound" (or any button) → Audio unlocks 🔊
+3. From now on, notifications work automatically ✅
+
+**You only need to click once per session.** After that, all sounds play normally. This is how all web audio works - YouTube, Spotify, etc. all require a click first.
+
+If you don't click first and don't hear sounds, that's why! Just click the Test Sound button.
 
 ---
 
