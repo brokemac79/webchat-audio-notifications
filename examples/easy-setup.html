@@ -173,6 +173,14 @@
         .then(r => r.text())
         .then(html => {
           document.getElementById('settings-container').innerHTML = html;
+          
+          // Extract and execute scripts from the loaded HTML
+          const scripts = document.getElementById('settings-container').querySelectorAll('script');
+          scripts.forEach(script => {
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.body.appendChild(newScript);
+          });
         });
     });
     
