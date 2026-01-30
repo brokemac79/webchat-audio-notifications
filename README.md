@@ -78,6 +78,17 @@ python3 -m http.server 8080
 3. Click "Trigger Notification" (or have someone trigger it)
 4. You should hear a sound! 🔊
 
+**⚠️ First-Time Audio Unlock:**
+
+Due to browser autoplay policies, you must interact with the page once before notifications will work:
+
+```javascript
+// In browser console (F12), run:
+window.testNotification()
+```
+
+After this one-time interaction, notifications will work automatically whenever the tab is hidden. This is a standard browser security requirement.
+
 **Testing on Remote Server (VPS):**
 
 If you're running on a remote server, use SSH tunneling to access the test page:
@@ -195,6 +206,17 @@ Play notification sound immediately (ignores tab state, useful for testing).
 ```javascript
 notifier.test();
 ```
+
+**Global Helper:**
+```javascript
+// Also available globally for easy testing/unlock:
+window.testNotification()
+```
+
+**Use cases:**
+- First-time audio unlock (bypass autoplay policy)
+- Verify installation works
+- Test sound without hiding tab
 
 #### `setEnabled(enabled)`
 Enable or disable notifications.

@@ -1,7 +1,7 @@
 ---
 name: webchat-audio-notifications
 description: Add browser audio notifications to Moltbot/Clawdbot webchat with 5 intensity levels - from whisper to impossible-to-miss (only when tab is backgrounded).
-version: 1.2.0
+version: 1.2.1
 author: brokemac79
 repository: https://github.com/brokemac79/webchat-audio-notifications
 homepage: https://github.com/brokemac79/webchat-audio-notifications
@@ -243,10 +243,18 @@ socket.on('dm', () => {
 ## Troubleshooting
 
 **No sound?**
+- **First-time setup:** Run `window.testNotification()` in browser console to unlock audio
 - Click page first (autoplay restriction)
 - Check tab is actually hidden
 - Verify volume > 0
 - Check console for errors
+
+**Quick Test:**
+```javascript
+// In browser console (F12):
+window.testNotification()
+// Should play sound immediately
+```
 
 **Sound plays when tab active?**
 - Enable debug mode
